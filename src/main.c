@@ -5,9 +5,7 @@
 __attribute__((aligned(4))) uint16_t frame_buffer[240 * 240];
 
 int main(void) {
-    init(); 
-    SystemCoreClockUpdate();
-    
+    delay_init();
     SPI1_Init();
     ST7789_Init();
 

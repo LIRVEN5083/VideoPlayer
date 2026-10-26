@@ -1,5 +1,11 @@
 #include "init.h"
 
+void delay_init(void) {
+    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+    DWT->CTRL |= (1 << 0);
+}
+
+
 void SPI1_Init(void) {
     LL_GPIO_InitTypeDef gpio_init = {0};
     LL_SPI_InitTypeDef spi_init = {0};

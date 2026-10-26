@@ -17,9 +17,15 @@ void ST7789_SendData(uint8_t data) {
     SPI_WriteByte8(data);
 }
 
+void delay_us(uint32_t us) {
+    uint32_t start_tick = DWT->CYCCNT;
+    uint32_t delay_ticks = us * (SystemCoreClock / 1000000U);
+    
+    while ((DWT->CYCCNT - start_tick) < delay_ticks);
+}
+
 void delay(uint32_t ms) {
-    volatile uint32_t count = ms * 800; 
-    while(count--) {
-        __NOP();
+    while (ms--) {
+        delay_us(1000);
     }
 }

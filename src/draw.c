@@ -1,36 +1,30 @@
 #include "draw.h"
 
 void ST7789_PushBuffer(void) {
-    ST7789_SendCommand(0x2C); // RAM Write
+    ST7789_SendCommand(0x2C); 
+    while (LL_SPI_IsActiveFlag_BSY(SPI1));
     DC_DATA();
     
-    LL_SPI_Disable(SPI1);
-    LL_SPI_SetDataWidth(SPI1, LL_SPI_DATAWIDTH_16BIT);
-    LL_SPI_Enable(SPI1);
-    
-    uint32_t total_pixels = 240 * 240;
-    uint32_t i = 0;
-    
-    for (; i < total_pixels; i += 4) {
-        while (!LL_SPI_IsActiveFlag_TXE(SPI1));
-        LL_SPI_TransmitData16(SPI1, frame_buffer[i]);
+    uint32_t size_bytes = 54700; 
+    uint8_t* byte_buffer = (uint8_t*)frame_buffer;
 
-        while (!LL_SPI_IsActiveFlag_TXE(SPI1));
-        LL_SPI_TransmitData16(SPI1, frame_buffer[i+1]);
+    LL_DMA_DisableStream(DMA2, LL_DMA_STREAM_3);
+    LL_DMA_ClearFlag_TC3(DMA2); 
+    LL_DMA_ConfigAddresses(DMA2, LL_DMA_STREAM_3, (uint32_t)byte_buffer, LL_SPI_DMA_GetRegAddr(SPI1), LL_DMA_DIRECTION_MEMORY_TO_PERIPH);
+    LL_DMA_SetDataLength(DMA2, LL_DMA_STREAM_3, size_bytes); 
+    LL_SPI_EnableDMAReq_TX(SPI1);
+    LL_DMA_EnableStream(DMA2, LL_DMA_STREAM_3);
+    while (!LL_DMA_IsActiveFlag_TC3(DMA2));
 
-        while (!LL_SPI_IsActiveFlag_TXE(SPI1));
-        LL_SPI_TransmitData16(SPI1, frame_buffer[i+2]);
-
-        while (!LL_SPI_IsActiveFlag_TXE(SPI1));
-        LL_SPI_TransmitData16(SPI1, frame_buffer[i+3]);
-    }
+    LL_DMA_DisableStream(DMA2, LL_DMA_STREAM_3);
+    LL_DMA_ClearFlag_TC3(DMA2); 
+    LL_DMA_ConfigAddresses(DMA2, LL_DMA_STREAM_3, (uint32_t)(byte_buffer + size_bytes), LL_SPI_DMA_GetRegAddr(SPI1), LL_DMA_DIRECTION_MEMORY_TO_PERIPH);
+    LL_DMA_SetDataLength(DMA2, LL_DMA_STREAM_3, size_bytes); 
+    LL_DMA_EnableStream(DMA2, LL_DMA_STREAM_3);
+    while (!LL_DMA_IsActiveFlag_TC3(DMA2));
     
-    while (!LL_SPI_IsActiveFlag_TXE(SPI1));
     while (LL_SPI_IsActiveFlag_BSY(SPI1));
-    
-    LL_SPI_Disable(SPI1);
-    LL_SPI_SetDataWidth(SPI1, LL_SPI_DATAWIDTH_8BIT);
-    LL_SPI_Enable(SPI1);
+    LL_SPI_DisableDMAReq_TX(SPI1);
     (void)SPI1->DR;
 }
 
@@ -40,7 +34,7 @@ void DrawPixel(uint16_t x, uint16_t y, uint16_t color) {
 }
 
 void ClearBuffer(uint16_t color) {
-    uint16_t swapped_color = __builtin_bswap16(color);
+    uint16_t swapped_color = __builtin_bswap16(color); 
     for (uint32_t i = 0; i < 240 * 240; i++) {
         frame_buffer[i] = swapped_color;
     }

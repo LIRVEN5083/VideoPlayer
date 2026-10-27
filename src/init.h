@@ -6,8 +6,10 @@
 
 void delay_init(void);
 
-// TODO: ST7789 init
+void DMA_Init(void);
+
 void SPI1_Init(void);
+
 void ST7789_Init(void);
 
 #endif

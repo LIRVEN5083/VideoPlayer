@@ -5,7 +5,7 @@ void ST7789_PushBuffer(void) {
     while (LL_SPI_IsActiveFlag_BSY(SPI1));
     DC_DATA();
     
-    uint32_t size_bytes = 54700; 
+    uint32_t size_bytes = 57600; 
     uint8_t* byte_buffer = (uint8_t*)frame_buffer;
 
     LL_DMA_DisableStream(DMA2, LL_DMA_STREAM_3);

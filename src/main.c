@@ -11,6 +11,7 @@ int main(void) {
 
     while (1) {
         Render(COLOR_CYAN);
+        Render(COLOR_MAGENTA);
     }
     return 0;
 }

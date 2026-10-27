@@ -48,4 +48,5 @@ void ClearBuffer(uint16_t color) {
 
 void Render(uint16_t color){
     ClearBuffer(color);
+    ST7789_PushBuffer();
 }
